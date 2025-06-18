@@ -214,7 +214,7 @@ const options = [
 ]
 const searchQuery = ref('')
 const currentPage = ref(1)
-const itemsPerPage = ref(8)
+const itemsPerPage = ref(7)
 const selectedGame = ref(null)
 
 const filterCriteria = {

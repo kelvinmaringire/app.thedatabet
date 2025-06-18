@@ -43,7 +43,7 @@
           </div>
           <div class="col-10 col-md-3 text-weight-bold">
             <q-item-section>
-              <q-item-label>{{ game.country }} - {{ game.league_betway }}</q-item-label>
+              <q-item-label>{{ game.country }} - {{ game.betway_league }}</q-item-label>
             </q-item-section>
           </div>
           <div class="col-2 col-md-1 text-weight-bold">
@@ -94,7 +94,7 @@
           <div class="row justify-between q-pa-sm">
             <div class="col-auto">League</div>
             <div class="col-auto">
-              {{ selectedGame.country }} - {{ selectedGame.league_betway }}
+              {{ selectedGame.country }} - {{ selectedGame.betway_league }}
             </div>
           </div>
           <q-separator color="orange" />
@@ -175,7 +175,7 @@
           </div>
           <q-separator color="orange" />
           <div class="row justify-between q-pa-sm">
-            <div class="col-auto">Draw not Bet (Home ~ Away)</div>
+            <div class="col-auto">Draw not Bet(Home ~ Away)</div>
             <div class="col-auto">
               {{ selectedGame.home_draw_no_bet }} ~ {{ selectedGame.away_draw_no_bet }}
             </div>
@@ -202,8 +202,6 @@ const options = [
   'All',
   'Home Win',
   'Away Win',
-  'Home or Draw',
-  'Away or Draw',
   'Over 1.5',
   'Under 3.5',
   'Home Over 0.5',
@@ -217,21 +215,19 @@ const itemsPerPage = ref(5)
 const selectedGame = ref(null)
 
 const filterCriteria = {
-  'Home Win': 'home_win_bet',
-  'Away Win': 'away_win_bet',
-  'Home or Draw': 'home_draw_bet',
-  'Away or Draw': 'away_draw_bet',
-  'Over 1.5': 'over_25_bet',
-  'Under 3.5': 'under_25_bet',
-  'Home Over 0.5': 'home_over_15_bet',
-  'Away Over 0.5': 'away_over_15_bet',
-  'BTTS Yes': 'btts_yes_bet',
-  'BTTS No': 'btts_no_bet',
+  'Home Win': 'Predicted_home_win',
+  'Away Win': 'Predicted_away_win',
+  'Over 1.5': 'Predicted_over_2_5',
+  'Under 3.5': 'Predicted_under_2_5',
+  'Home Over 0.5': 'Predicted_home_over_1_5',
+  'Away Over 0.5': 'Predicted_away_over_1_5',
+  'BTTS Yes': 'Predicted_btts_yes',
+  'BTTS No': 'Predicted_btts_no',
 }
 
 // Compute the filtered games based on the search query and selected option
 const filteredGames = computed(() => {
-  const json_data = bettingTipsStore.tomorrow.json_data
+  const json_data = bettingTipsStore.tomorrow_tips
   const query = searchQuery.value.toLowerCase()
   const selectedCriterion = filterCriteria[selectedOption.value]
 
@@ -239,10 +235,9 @@ const filteredGames = computed(() => {
 
   return json_data.filter((game) => {
     const matchesQuery =
-      game.HOST_NAME.toLowerCase().includes(query) ||
-      game.GUEST_NAME.toLowerCase().includes(query) ||
-      game.country.toLowerCase().includes(query) ||
-      game.league_betway.toLowerCase().includes(query)
+      game.host_name.toLowerCase().includes(query) ||
+      game.guest_name.toLowerCase().includes(query) ||
+      game.betway_league.toLowerCase().includes(query)
 
     if (selectedOption.value === 'All') {
       return matchesQuery
