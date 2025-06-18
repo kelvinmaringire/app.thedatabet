@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@capacitor/android@^7.0.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-7.3.0.tgz#68a14f0c3ad1779852237c6932433a22e145a61a"
+  integrity sha512-TqUm+Z3Uk7/rET+adNDKD63JtA0AN+pMQlFRcLPmZJHFmJl6bUOWWELVL0Ixl5XaweTxofNKeDAjjLRIs+wd3g==
+
 "@capacitor/app@^7.0.0":
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-7.0.1.tgz#0d0709fb4dde5046c24853f2d6b77a7ea411f748"

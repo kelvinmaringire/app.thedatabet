@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">thedatabet</string>
+    <string name="title_activity_main">thedatabet</string>
+    <string name="package_name">app.databet.co.za</string>
+    <string name="custom_url_scheme">app.databet.co.za</string>
+</resources>
