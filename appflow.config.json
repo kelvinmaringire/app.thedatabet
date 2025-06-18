@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "appId": "c8dda030",
+      "appId": "fd0b15ba",
       "root": "src-capacitor",
       "dependencyInstallCommand": "cd .. && yarn install",
       "webBuildCommand": "cd .. && yarn quasar build -m capacitor -T android --skip-pkg"
