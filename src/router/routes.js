@@ -27,6 +27,11 @@ const routes = [
         component: () => import('pages/Dashboard/Tips/GamePredictionsPage.vue'),
       },
       {
+        path: '',
+        name: 'previews',
+        component: () => import('pages/Dashboard/Tips/PreviewsPage.vue'),
+      },
+      {
         path: '/account',
         name: 'account',
         component: () => import('pages/Dashboard/Account/AccountPage.vue'),

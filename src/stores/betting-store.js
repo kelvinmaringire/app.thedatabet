@@ -84,9 +84,29 @@ export const useBettingTipsStore = defineStore('betting', {
           headers,
           params: this.yesterdayParams,
         })
-        this.yesterday_previews = response.data
+
+        const flattened = []
+        let counter = 1
+
+        // Flatten and transform the data
+        for (const item of response.data) {
+          for (const subItem of item.data) {
+            for (const html of subItem.data) {
+              const matchTitleMatch = html.match(/<h3[^>]*>(.*?)<\/h3>/)
+              const matchTitle = matchTitleMatch ? matchTitleMatch[1] : 'Unknown Match'
+
+              flattened.push({
+                id: counter++,
+                match: matchTitle,
+                data: html,
+              })
+            }
+          }
+        }
+
+        this.yesterday_previews = flattened
       } catch (error) {
-        console.error('Error fetching yesterday previews:', error)
+        console.error('Error fetching tomorrow previews:', error)
       }
     },
     async fetchTodayPreviews() {
@@ -95,9 +115,29 @@ export const useBettingTipsStore = defineStore('betting', {
           headers,
           params: this.todayParams,
         })
-        this.today_previews = response.data
+
+        const flattened = []
+        let counter = 1
+
+        // Flatten and transform the data
+        for (const item of response.data) {
+          for (const subItem of item.data) {
+            for (const html of subItem.data) {
+              const matchTitleMatch = html.match(/<h3[^>]*>(.*?)<\/h3>/)
+              const matchTitle = matchTitleMatch ? matchTitleMatch[1] : 'Unknown Match'
+
+              flattened.push({
+                id: counter++,
+                match: matchTitle,
+                data: html,
+              })
+            }
+          }
+        }
+
+        this.today_previews = flattened
       } catch (error) {
-        console.error('Error fetching today previews:', error)
+        console.error('Error fetching tomorrow previews:', error)
       }
     },
     async fetchTomorrowPreviews() {
@@ -106,7 +146,27 @@ export const useBettingTipsStore = defineStore('betting', {
           headers,
           params: this.tomorrowParams,
         })
-        this.tomorrow_previews = response.data
+
+        const flattened = []
+        let counter = 1
+
+        // Flatten and transform the data
+        for (const item of response.data) {
+          for (const subItem of item.data) {
+            for (const html of subItem.data) {
+              const matchTitleMatch = html.match(/<h3[^>]*>(.*?)<\/h3>/)
+              const matchTitle = matchTitleMatch ? matchTitleMatch[1] : 'Unknown Match'
+
+              flattened.push({
+                id: counter++,
+                match: matchTitle,
+                data: html,
+              })
+            }
+          }
+        }
+
+        this.tomorrow_previews = flattened
       } catch (error) {
         console.error('Error fetching tomorrow previews:', error)
       }

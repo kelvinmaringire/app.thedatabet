@@ -70,10 +70,13 @@
         :max="maxPage"
         direction-links
         outline
-        color="orange"
+        color="info"
         active-design="unelevated"
         active-color="brown"
         active-text-color="orange"
+        :max-pages="5"
+        ellipses
+        boundary-numbers
       />
     </div>
 
@@ -211,7 +214,7 @@ const options = [
 ]
 const searchQuery = ref('')
 const currentPage = ref(1)
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(7)
 const selectedGame = ref(null)
 
 const filterCriteria = {
