@@ -1,119 +1,137 @@
 <template>
-  <q-page>
-    <div class="row" style="height: 100vh">
-      <div
-        v-bind:class="{ 'justify-center': $q.screen.md || $q.screen.sm || $q.screen.xs }"
-        class="col-12 col-md-6 flex content-center"
-      >
-        <q-card v-bind:style="$q.screen.lt.sm ? { width: '80%' } : { width: '50%' }">
-          <q-card-section>
-            <router-link to="/">
-              <q-avatar size="103px" class="absolute-center shadow-10" to="/">
-                <img src="~assets/auth/avatar.svg" alt="avatar" />
-              </q-avatar>
+  <q-page class="flex flex-center bg-dark">
+    <q-card class="auth-card q-pa-md" dark>
+      <q-card-section class="text-center">
+        <q-avatar size="100px" class="q-mb-sm">
+          <img src="https://cdn.quasar.dev/img/avatar.png" />
+        </q-avatar>
+        <h4 class="text-h4 text-weight-bold text-white">Welcome Back</h4>
+        <p class="text-grey-4">Sign in to continue</p>
+      </q-card-section>
+
+      <q-card-section>
+        <q-form @submit="handleLogin" class="q-gutter-y-md">
+          <q-input
+            v-model="email"
+            label="Email"
+            type="email"
+            required
+            outlined
+            color="primary"
+            dark
+            lazy-rules
+            :rules="[(val) => !!val || 'Email is required']"
+          >
+            <template v-slot:prepend>
+              <q-icon name="mail" color="primary" />
+            </template>
+          </q-input>
+
+          <q-input
+            v-model="password"
+            label="Password"
+            :type="showPassword ? 'text' : 'password'"
+            required
+            outlined
+            color="primary"
+            dark
+            lazy-rules
+            :rules="[(val) => !!val || 'Password is required']"
+          >
+            <template v-slot:prepend>
+              <q-icon name="lock" color="primary" />
+            </template>
+            <template v-slot:append>
+              <q-icon
+                :name="showPassword ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="showPassword = !showPassword"
+              />
+            </template>
+          </q-input>
+
+          <div class="text-right">
+            <router-link :to="{ name: 'forgot-password' }" class="text-primary text-caption">
+              Forgot password?
             </router-link>
-          </q-card-section>
-          <q-card-section>
-            <div class="q-pt-lg">
-              <div class="col text-h6 ellipsis flex justify-center">
-                <h2 class="text-h2 text-uppercase q-my-none text-weight-regular">Login</h2>
-              </div>
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <q-form class="q-gutter-md" @submit.prevent="onLogin">
-              <q-input label="Email" v-model="credentials.email"> </q-input>
-              <q-input
-                label="Password"
-                :type="isPwd ? 'password' : 'text'"
-                v-model="credentials.password"
-              >
-                <template v-slot:append>
-                  <q-icon
-                    :name="isPwd ? 'visibility_off' : 'visibility'"
-                    class="cursor-pointer"
-                    @click="isPwd = !isPwd"
-                  />
-                </template>
-              </q-input>
-              <div>
-                <q-btn
-                  class="full-width"
-                  color="primary"
-                  label="Login"
-                  type="submit"
-                  rounded
-                ></q-btn>
-                <div class="text-center q-mt-sm q-gutter-lg">
-                  <router-link class="text-white" :to="{ name: 'password_reset' }"
-                    >Forgot your password?</router-link
-                  >
-                  <router-link class="text-white" :to="{ name: 'register' }"
-                    >Create account</router-link
-                  >
-                </div>
-              </div>
-            </q-form>
-          </q-card-section>
-        </q-card>
-      </div>
-    </div>
+          </div>
+
+          <q-btn
+            type="submit"
+            color="primary"
+            label="Login"
+            :loading="loading"
+            class="full-width q-mt-md"
+            size="lg"
+            unelevated
+          />
+
+          <div class="text-center q-my-md">
+            <div class="text-grey-5 q-my-sm">or continue with</div>
+            <q-btn
+              color="grey-9"
+              icon="img:https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+              label="Google"
+              class="full-width"
+              @click="signInWithGoogle"
+            />
+          </div>
+
+          <div class="text-center q-mt-lg">
+            <p class="text-grey-4 text-caption">
+              Don't have an account?
+              <router-link :to="{ name: 'register' }" class="text-primary text-weight-medium">
+                Register here
+              </router-link>
+            </p>
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
-import { useAuthStore } from '../stores/auth-store'
+import { useAuthStore } from 'src/stores/auth-store'
 
-defineOptions({
-  name: 'LoginPage',
-})
-
-const authStore = useAuthStore()
+const email = ref('')
+const password = ref('')
+const showPassword = ref(false)
+const loading = ref(false)
 const router = useRouter()
-const $q = useQuasar()
+const authStore = useAuthStore()
 
-const isPwd = ref(true)
-const credentials = ref({
-  email: '',
-  password: '',
-})
+async function handleLogin() {
+  loading.value = true
+  const result = await authStore.login(email.value, password.value)
+  loading.value = false
 
-async function onLogin() {
-  if (!credentials.value.email || !credentials.value.password) {
-    $q.notify({
-      type: 'negative',
-      message: 'The provided data is invalid.',
-      position: 'top',
-    })
-  } else if (credentials.value.password.length < 6) {
-    $q.notify({
-      type: 'negative',
-      message: 'The password must have 6 or more characters.',
-      position: 'top',
-    })
-  } else {
-    try {
-      await authStore.signIn(credentials.value.email, credentials.value.password)
+  if (result.success) {
+    router.push({ name: 'dashboard' })
+  }
+}
 
-      $q.notify({
-        type: 'positive',
-        message: 'Authenticated',
-        position: 'top',
-      })
+async function signInWithGoogle() {
+  loading.value = true
+  const result = await authStore.loginWithGoogle()
+  loading.value = false
 
-      router.push({ name: 'predictions' })
-    } catch (err) {
-      $q.notify({
-        type: 'negative',
-        message: err?.message || 'Login failed',
-        position: 'top',
-      })
-    }
+  if (result.success) {
+    router.push({ name: 'predictions' })
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+}
+
+.bg-dark {
+  background: #121212;
+}
+</style>

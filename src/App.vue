@@ -13,7 +13,7 @@ const bettingTips = useBettingTipsStore()
 async function initStore() {
   //await authStore.initAuth()
   await authStore.fetchUser()
-  authStore.restoreSession()
+  authStore.initializeAuth()
   authStore.initSupabaseAuthListener()
 
   await bettingTips.fetchYesterdayTips()

@@ -121,6 +121,7 @@ export const useBettingTipsStore = defineStore('betting', {
 
         // Flatten and transform the data
         for (const item of response.data) {
+          console.log(item)
           for (const subItem of item.data) {
             for (const html of subItem.data) {
               const matchTitleMatch = html.match(/<h3[^>]*>(.*?)<\/h3>/)

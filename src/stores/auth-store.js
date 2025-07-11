@@ -1,168 +1,188 @@
 import { defineStore } from 'pinia'
-import { api } from '../boot/axios.js'
 import { supabase } from '../boot/supabase.js'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    users: [],
-    token: JSON.parse(window.localStorage.getItem('token')) || '', // Initialize with local storage value
-    isAuthenticated: !!window.localStorage.getItem('token'),
     user: null,
+    isAuthenticated: false,
+    session: null,
+    error: null,
   }),
 
-  getters: {
-    decodeToken(state) {
-      if (state.token && state.token.access) {
-        const accessToken = state.token.access
-        const base64Url = accessToken.split('.')[1]
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split('')
-            .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-            .join(''),
-        )
-        return JSON.parse(jsonPayload)
-      }
-      return {}
-    },
-    userId() {
-      const decodedToken = this.decodeToken
-      return decodedToken.user_id
-    },
-    profile(state) {
-      const { userId } = this
-      const { users } = state
-      return users.find((user) => user.id === userId)
-    },
-  },
-
   actions: {
-    async fetchUser() {
-      const { data, error } = await supabase.auth.getUser()
-      if (error) {
-        console.error('Failed to fetch user:', error.message)
-        this.user = null
-      } else {
-        this.user = data.user
-        console.log('✅ Current user:', this.user)
+    // Initialize auth state from localStorage
+    initializeAuth() {
+      const session = JSON.parse(localStorage.getItem('sb_session'))
+      if (session) {
+        this.user = session.user
+        this.isAuthenticated = true
+        this.session = session
       }
     },
-    async signIn(email, password) {
-      const { user, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
 
-      if (error) {
-        console.error('Sign-in error:', error.message)
-      } else {
-        console.log('User signed in:', user)
-      }
-    },
-    async signUp(email, password) {
-      const { user, error } = await supabase.auth.signUp({
-        email,
-        password,
-      })
-
-      if (error) {
-        console.error('Sign-up error:', error.message)
-      } else {
-        console.log('User signed up:', user)
-      }
-    },
-    async signOut() {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Logout error:', error.message)
-      } else {
-        console.log('User signed out')
-      }
-    },
+    // Set up auth state change listener
     initSupabaseAuthListener() {
       supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, session)
+
         if (session) {
           this.user = session.user
           this.isAuthenticated = true
-          window.localStorage.setItem('sb_session', JSON.stringify(session))
+          this.session = session
+          localStorage.setItem('sb_session', JSON.stringify(session))
         } else {
           this.user = null
           this.isAuthenticated = false
-          window.localStorage.removeItem('sb_session')
+          this.session = null
+          localStorage.removeItem('sb_session')
         }
       })
     },
 
-    restoreSession() {
-      const session = JSON.parse(window.localStorage.getItem('sb_session'))
-      if (session?.user) {
-        this.user = session.user
+    // Email/password login
+    async login(email, password) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (error) throw error
+
+        this.user = data.user
         this.isAuthenticated = true
+        this.session = data.session
+        localStorage.setItem('sb_session', JSON.stringify(data.session))
+
+        return { success: true, data }
+      } catch (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
       }
     },
 
-    async fetchUsers() {
-      const response = await api.get('accounts/')
-      this.users = response.data
-    },
-    async doLogin(credentials) {
-      const response = await api.post('api/token/', credentials)
+    // Email/password registration
+    async register(email, password, additionalData = {}) {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: additionalData,
+          },
+        })
 
-      this.token = response.data
-      this.isAuthenticated = true
-      window.localStorage.setItem('token', JSON.stringify(response.data))
-      api.defaults.headers.common.Authorization = `JWT ${response.data.access}`
-      this.getMe(response.data)
-    },
+        if (error) throw error
 
-    async doContact(formData) {
-      await api.post('contact_form/', formData)
-    },
-
-    logout() {
-      api.defaults.headers.common.Authorization = ''
-      this.token = ''
-      window.localStorage.removeItem('token')
-      this.isAuthenticated = false
-    },
-
-    async getMe(token) {
-      const accessToken = token.access
-      const base64Url = accessToken.split('.')[1]
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-          .join(''),
-      )
-      const parsedPayload = JSON.parse(jsonPayload)
-      this.user_id = parsedPayload.user_id
-    },
-
-    async initAuth() {
-      const token = localStorage.getItem('token')
-      if (token) {
-        const parsedToken = JSON.parse(token)
-        const currentTime = Math.floor(Date.now() / 1000) // Get current time in seconds
-        const decodedToken = this.decodeToken
-
-        // Check if the token is expired
-        if (decodedToken.exp > currentTime) {
-          this.token = parsedToken
+        // Only set user/session if email confirmation is not required
+        if (data.user && data.session) {
+          this.user = data.user
           this.isAuthenticated = true
-          api.defaults.headers.common.Authorization = `JWT ${this.token.access}`
-        } else {
-          // Token is expired, handle accordingly
-          this.token = ''
-          window.localStorage.removeItem('token')
-          this.isAuthenticated = false
+          this.session = data.session
+          localStorage.setItem('sb_session', JSON.stringify(data.session))
         }
-      } else {
-        this.token = ''
-        window.localStorage.removeItem('token')
+
+        return { success: true, data }
+      } catch (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
+      }
+    },
+
+    // Logout
+    async logout() {
+      try {
+        const { error } = await supabase.auth.signOut()
+        if (error) throw error
+
+        this.user = null
         this.isAuthenticated = false
+        this.session = null
+        localStorage.removeItem('sb_session')
+
+        return { success: true }
+      } catch (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
+      }
+    },
+
+    // Send password reset email
+    async forgotPassword(email) {
+      try {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        })
+
+        if (error) throw error
+
+        return { success: true, data }
+      } catch (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
+      }
+    },
+
+    // Update password (must be authenticated)
+    async updatePassword(newPassword) {
+      try {
+        const { data, error } = await supabase.auth.updateUser({
+          password: newPassword,
+        })
+
+        if (error) throw error
+
+        // Update local user data if needed
+        if (data.user) {
+          this.user = data.user
+        }
+
+        return { success: true, data }
+      } catch (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
+      }
+    },
+
+    // Handle password reset (from email link)
+    async handlePasswordReset(newPassword) {
+      try {
+        const { data, error } = await supabase.auth.updateUser({
+          password: newPassword,
+        })
+
+        if (error) throw error
+
+        // Update local user data
+        if (data.user) {
+          this.user = data.user
+          this.isAuthenticated = true
+        }
+
+        return { success: true, data }
+      } catch (error) {
+        this.error = error.message
+        return { success: false, error: error.message }
+      }
+    },
+
+    // Get current user
+    async fetchUser() {
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser()
+
+        if (error) throw error
+
+        this.user = user
+        this.isAuthenticated = true
+        return { success: true, user }
+      } catch (error) {
+        this.user = null
+        this.isAuthenticated = false
+        return { success: false, error: error.message }
       }
     },
   },

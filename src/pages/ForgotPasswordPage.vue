@@ -1,63 +1,92 @@
 <template>
-  <q-page>
+  <q-page class="flex flex-center bg-dark">
+    <q-card class="auth-card q-pa-md" dark>
+      <q-card-section class="text-center">
+        <q-avatar size="100px" class="q-mb-sm">
+          <img src="https://cdn.quasar.dev/img/avatar3.png">
+        </q-avatar>
+        <h4 class="text-h4 text-weight-bold text-white">Forgot Password</h4>
+        <p class="text-grey-4">Enter your email to reset your password</p>
+      </q-card-section>
 
-   <img src="~assets/auth/wave.png" class="wave" alt="login-wave">
- <div class="row" style="height: 90vh">
-   <div class="col-0 col-md-6 flex justify-center content-center">
-     <img src="~assets/auth/login.svg" class="responsive" alt="login-image">
-   </div>
-   <div v-bind:class="{'justify-center': $q.screen.md || $q.screen.sm ||$q.screen.xs}"
-        class="col-12 col-md-6 flex content-center">
-     <q-card v-bind:style="$q.screen.lt.sm ? {'width': '80%'} : {'width': '50%'}">
-       <q-card-section>
-        <router-link to="/">
-         <q-avatar size="103px" class="absolute-center shadow-10">
-           <img src="~assets/auth/avatar.svg" alt="avatar">
-         </q-avatar>
-        </router-link>
-       </q-card-section>
-       <q-card-section>
-         <div class="q-pt-lg">
-           <div class="col text-h6 ellipsis flex justify-center">
-             <h2 class="text-h2 text-uppercase q-my-none text-weight-regular">Register</h2>
-           </div>
-         </div>
-       </q-card-section>
-       <q-card-section>
-         <q-form class="q-gutter-md">
-           <q-input label="Email">
-           </q-input>
-           <div>
-             <q-btn class="full-width" color="primary" label="register" type="submit" rounded>
-             </q-btn>
-             <div class="text-center q-mt-sm q-gutter-lg">
-               <router-link class="text-white"
-               :to="{ name: 'login'}">Login</router-link>
-               <router-link class="text-white"
-               :to="{ name: 'register'}">Create account</router-link>
-             </div>
-           </div>
-         </q-form>
-       </q-card-section>
-     </q-card>
-   </div>
- </div>
+      <q-card-section>
+        <q-form @submit="handleForgotPassword" class="q-gutter-y-md">
+          <q-input
+            v-model="email"
+            label="Email"
+            type="email"
+            required
+            outlined
+            color="primary"
+            dark
+            lazy-rules
+            :rules="[val => !!val || 'Email is required']"
+          >
+            <template v-slot:prepend>
+              <q-icon name="mail" color="primary" />
+            </template>
+          </q-input>
 
+          <q-btn
+            type="submit"
+            color="primary"
+            label="Send Reset Link"
+            :loading="loading"
+            class="full-width q-mt-md"
+            size="lg"
+            unelevated
+          />
+
+          <div class="text-center q-mt-lg">
+            <router-link
+              :to="{ name: 'login' }"
+              class="text-primary text-caption"
+            >
+              Back to login
+            </router-link>
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 
-<script>
-export default {
-  // name: 'PageName',
-};
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from 'src/stores/auth-store'
+import { useQuasar } from 'quasar'
+
+const email = ref('')
+const loading = ref(false)
+const router = useRouter()
+const authStore = useAuthStore()
+const $q = useQuasar()
+
+async function handleForgotPassword() {
+  loading.value = true
+  const result = await authStore.forgotPassword(email.value)
+  loading.value = false
+
+  if (result.success) {
+    $q.notify({
+      type: 'positive',
+      message: 'Password reset link sent to your email',
+      position: 'top'
+    })
+    router.push({ name: 'login' })
+  }
+}
 </script>
 
 <style scoped>
-.wave {
- position: fixed;
- height: 100%;
- left: 0;
- bottom: 0;
- z-index: -1;
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+}
+
+.bg-dark {
+  background: #121212;
 }
 </style>
