@@ -1,29 +1,30 @@
 <template>
   <q-page class="flex flex-center bg-dark">
-    <q-card class="auth-card q-pa-md" dark>
-      <q-card-section class="text-center">
-        <q-avatar size="100px" class="q-mb-sm">
-          <img src="https://cdn.quasar.dev/img/avatar2.png">
+    <q-card class="auth-card q-pa-sm" dark>
+      <q-card-section class="text-center q-pa-sm">
+        <q-avatar size="80px" class="q-mb-xs">
+          <img src="https://cdn.quasar.dev/img/avatar2.png" />
         </q-avatar>
-        <h4 class="text-h4 text-weight-bold text-white">Create Account</h4>
-        <p class="text-grey-4">Join us today</p>
+        <h4 class="text-h5 text-weight-bold text-white q-my-xs">Create Account</h4>
+        <p class="text-grey-4 q-mb-none">Join us today</p>
       </q-card-section>
 
-      <q-card-section>
-        <q-form @submit="handleRegister" class="q-gutter-y-md">
+      <q-card-section class="q-pa-sm">
+        <q-form @submit="handleRegister" class="q-gutter-y-sm">
           <q-input
             v-model="email"
             label="Email"
             type="email"
             required
             outlined
+            dense
             color="primary"
             dark
             lazy-rules
-            :rules="[val => !!val || 'Email is required']"
+            :rules="[(val) => !!val || 'Email is required']"
           >
             <template v-slot:prepend>
-              <q-icon name="mail" color="primary" />
+              <q-icon name="mail" size="sm" color="primary" />
             </template>
           </q-input>
 
@@ -33,20 +34,22 @@
             :type="showPassword ? 'text' : 'password'"
             required
             outlined
+            dense
             color="primary"
             dark
             lazy-rules
             :rules="[
-              val => !!val || 'Password is required',
-              val => val.length >= 6 || 'Password must be at least 6 characters'
+              (val) => !!val || 'Password is required',
+              (val) => val.length >= 6 || 'Password must be at least 6 characters',
             ]"
           >
             <template v-slot:prepend>
-              <q-icon name="lock" color="primary" />
+              <q-icon name="lock" size="sm" color="primary" />
             </template>
             <template v-slot:append>
               <q-icon
                 :name="showPassword ? 'visibility_off' : 'visibility'"
+                size="sm"
                 class="cursor-pointer"
                 @click="showPassword = !showPassword"
               />
@@ -59,20 +62,22 @@
             :type="showConfirmPassword ? 'text' : 'password'"
             required
             outlined
+            dense
             color="primary"
             dark
             lazy-rules
             :rules="[
-              val => !!val || 'Please confirm your password',
-              val => val === password || 'Passwords do not match'
+              (val) => !!val || 'Please confirm your password',
+              (val) => val === password || 'Passwords do not match',
             ]"
           >
             <template v-slot:prepend>
-              <q-icon name="lock" color="primary" />
+              <q-icon name="lock" size="sm" color="primary" />
             </template>
             <template v-slot:append>
               <q-icon
                 :name="showConfirmPassword ? 'visibility_off' : 'visibility'"
+                size="sm"
                 class="cursor-pointer"
                 @click="showConfirmPassword = !showConfirmPassword"
               />
@@ -84,29 +89,27 @@
             color="primary"
             label="Register"
             :loading="loading"
-            class="full-width q-mt-md"
-            size="lg"
+            class="full-width q-mt-sm"
+            size="md"
             unelevated
           />
 
-          <div class="text-center q-my-md">
-            <div class="text-grey-5 q-my-sm">or continue with</div>
+          <div class="text-center q-my-xs">
+            <div class="text-grey-5 text-caption q-my-xs">or continue with</div>
             <q-btn
               color="grey-9"
               icon="img:https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
               label="Google"
               class="full-width"
+              size="md"
               @click="signInWithGoogle"
             />
           </div>
 
-          <div class="text-center q-mt-lg">
-            <p class="text-grey-4 text-caption">
+          <div class="text-center q-mt-sm">
+            <p class="text-grey-4 text-caption q-mb-none">
               Already have an account?
-              <router-link
-                :to="{ name: 'login' }"
-                class="text-primary text-weight-medium"
-              >
+              <router-link :to="{ name: 'login' }" class="text-primary text-weight-medium">
                 Login here
               </router-link>
             </p>
@@ -142,7 +145,7 @@ async function handleRegister() {
     $q.notify({
       type: 'positive',
       message: 'Registration successful! Please check your email to confirm your account.',
-      position: 'top'
+      position: 'top',
     })
     router.push({ name: 'login' })
   }
@@ -162,8 +165,8 @@ async function signInWithGoogle() {
 <style scoped>
 .auth-card {
   width: 100%;
-  max-width: 400px;
-  border-radius: 16px;
+  max-width: 380px;
+  border-radius: 12px;
 }
 
 .bg-dark {

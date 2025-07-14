@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false,
     session: null,
     error: null,
+    ready: false,
   }),
 
   actions: {
@@ -18,6 +19,7 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = true
         this.session = session
       }
+      this.ready = true
     },
 
     // Set up auth state change listener

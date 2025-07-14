@@ -30,7 +30,7 @@
           </div>
           <div class="col-10 col-md-3 text-weight-bold">
             <q-item-section>
-              <q-item-label>{{ preview.country }} - {{ preview.betway_league }}</q-item-label>
+              <q-item-label>{{ preview.league }}</q-item-label>
             </q-item-section>
           </div>
           <div class="col-2 col-md-1 text-weight-bold">

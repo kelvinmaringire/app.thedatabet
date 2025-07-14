@@ -2,7 +2,6 @@ const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    meta: { requiresGuest: true },
     children: [
       {
         path: '',
@@ -28,8 +27,9 @@ const routes = [
   },
   {
     path: '/dashboard',
-    component: () => import('layouts/DashboardLayout.vue'),
+    name: 'dashboard',
     meta: { requiresAuth: true },
+    component: () => import('layouts/DashboardLayout.vue'),
     children: [
       {
         path: '',
@@ -45,6 +45,11 @@ const routes = [
         path: 'account',
         name: 'account',
         component: () => import('pages/Dashboard/Account/AccountPage.vue'),
+      },
+      {
+        path: 'tips-copy',
+        name: 'tips-copy',
+        component: () => import('pages/Dashboard/Account/TipsCopyPage.vue'),
       },
       {
         path: 'change-password',

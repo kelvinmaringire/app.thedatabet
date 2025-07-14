@@ -40,5 +40,5 @@ import PreviewsTomorrowComponent from 'components/PreviewsTomorrowComponent.vue'
 import PreviewsTodayComponent from 'components/PreviewsTodayComponent.vue'
 import PreviewsYesterdayComponent from 'components/PreviewsYesterdayComponent.vue'
 
-const tab = ref('today')
+const tab = ref('tomorrow')
 </script>

@@ -40,5 +40,5 @@ import PredictionsTomorrowComponent from 'components/PredictionsTomorrowComponen
 import PredictionsTodayComponent from 'components/PredictionsTodayComponent.vue'
 import PredictionsYesterdayComponent from 'components/PredictionsYesterdayComponent.vue'
 
-const tab = ref('today')
+const tab = ref('tomorrow')
 </script>
